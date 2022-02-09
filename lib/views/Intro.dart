@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:alumni/views/SignUp.dart';
-import 'package:alumni/views/signIn.dart';
+import 'package:alumni/views/SignIn.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -19,10 +19,10 @@ class _introductState extends State<introduct> {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Color(0xffb000080),
             elevation: 0,
             bottom: TabBar(
-                labelColor: Colors.redAccent,
+                labelColor: Color(0xffb000080),
                 unselectedLabelColor: Colors.white,
                 indicatorSize: TabBarIndicatorSize.label,
                 indicator: BoxDecoration(

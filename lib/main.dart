@@ -1,13 +1,11 @@
-import 'package:alumni/views/ChatRoom.dart';
+import 'package:alumni/views/Intro.dart';
 import 'package:alumni/views/MyAd.dart';
 import 'package:alumni/views/SearchOrAddItems.dart';
+import 'package:alumni/views/SignIn.dart';
 import 'package:alumni/views/SignUp.dart';
-import 'package:alumni/views/intro.dart';
-import 'package:alumni/views/search.dart';
-import 'package:alumni/views/signIn.dart';
 import 'package:flutter/material.dart';
 
-void main() {
+void main() async {
   runApp(MyApp());
 }
 
@@ -19,10 +17,8 @@ class MyApp extends StatelessWidget {
       routes: {
         '/signUp': (context) => signUp(),
         '/signIN': (context) => SignIn(),
-        '/chat': (context) => ChatRoom(),
-        '/search':(context) =>SearchScreen(),
-        '/MyAd':(context) => MyAd(),
-        '/Search':(context)=>SearchAdd(),
+        '/MyAd': (context) => MyAd(),
+        '/Search': (context) => SearchAdd(),
       },
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
@@ -34,4 +30,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-

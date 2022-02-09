@@ -19,10 +19,10 @@ class _AddItemState extends State<AddItem> {
         length: 2,
         child: Scaffold(
           appBar: AppBar(
-            backgroundColor: Colors.redAccent,
+            backgroundColor: Color(0xffb000080),
             elevation: 0,
             bottom: TabBar(
-                labelColor: Colors.redAccent,
+                labelColor: Color(0xffb000080),
                 unselectedLabelColor: Colors.white,
                 indicatorSize: TabBarIndicatorSize.label,
                 indicator: BoxDecoration(

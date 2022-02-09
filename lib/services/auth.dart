@@ -18,6 +18,17 @@ class AuthMethods{
               print(e.toString());
           }
       }
+      Future<User?> CreateUserWithEmail(String email, String password) async {
+        try{
+          UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+          User? firebaseUser = result.user;
+          return firebaseUser;
+
+        }
+        catch(e){
+          print(e.toString());
+        }
+      }
       Future signUpWithEnailandPassword(String email, String password) async {
             try{
             UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);

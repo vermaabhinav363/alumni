@@ -1,8 +1,8 @@
-import 'package:alumni/helper/herperfunction.dart';
+import 'package:alumni/helper/Helperfunction.dart';
+import 'package:alumni/helper/constants.dart';
 import 'package:alumni/services/auth.dart';
 import 'package:alumni/services/database.dart';
-import 'package:alumni/views/ChatRoom.dart';
-import 'package:alumni/views/SearchOrAddItems.dart';
+import 'package:alumni/views/Verify.dart';
 import 'package:alumni/widget/widget.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +14,8 @@ class signUp extends StatefulWidget {
   _signUpState createState() => _signUpState();
 }
 
-String text =
-    "";
+late String SignUpEmail;
+String text = "";
 final formKey = GlobalKey<FormState>();
 bool isLoading = false;
 TextEditingController userNameTextEditing = new TextEditingController();
@@ -33,33 +33,31 @@ class _signUpState extends State<signUp> {
       });
       authMethods
           .signUpWithEnailandPassword(
-              emailTextEditing.text, passWordTextEditing.text)
+              emailTextEditing.text.replaceAll(" ", ""), passWordTextEditing.text)
           .then((val) {
         if (val == null) {
           setState(() {
-            text =
-            "Email already in use";
+            text = "Email already in use";
             showAlertDialog(context);
             isLoading = false;
           });
-        }
-        else {
-          print('${val.userId}');
+        } else {
+          String result = emailTextEditing.text.substring(0, emailTextEditing.text.indexOf('@'));
           Map<String, String> UserInfoMap = {
-            "name": userNameTextEditing.text,
+            "name": result,
             "email": emailTextEditing.text
           };
+          SignUpEmail = emailTextEditing.text;
           HelperFunction.saveUserEmailSharedPreference(emailTextEditing.text);
-          HelperFunction.saveUserNameSharedPreference(userNameTextEditing.text);
+
+          HelperFunction.saveUserNameSharedPreference( emailTextEditing.text.substring(0, emailTextEditing.text.indexOf('@')));
           databaseMethods.uploadUserInfo(UserInfoMap);
-          HelperFunction.saveUserLoggedInSharedPreference(true);
           Navigator.of(context).popUntil((route) => route.isFirst);
 
           isLoading = false;
-
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (BuildContext context) => SearchAdd()));
-
+          Constants.myName =  emailTextEditing.text.substring(0, emailTextEditing.text.indexOf('@'));
+          Navigator.push(context,
+              MaterialPageRoute(builder: (BuildContext context) => Verify()));
         }
       });
     }
@@ -73,7 +71,6 @@ class _signUpState extends State<signUp> {
               child: Center(child: CircularProgressIndicator()),
             )
           : Container(
-
               height: MediaQuery.of(context).size.height,
               child: SingleChildScrollView(
                 child: Container(
@@ -90,8 +87,6 @@ class _signUpState extends State<signUp> {
                               fontSize: 20,
                             ),
                             children: [
-
-
                               TextSpan(
                                 text: ' Swipe left ',
                                 style: TextStyle(
@@ -104,7 +99,17 @@ class _signUpState extends State<signUp> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 75,),
+                      SizedBox(
+                        height: 75,
+                      ),
+                      Container(
+                        child: Text("Register with BITS Hyderabad mail only.", style: TextStyle(
+                          fontSize: 18,color: Color. fromRGBO(252,81,133, 1.0)
+                        ),),
+                      ),
+                      SizedBox(
+                        height: 35,
+                      ),
                       Form(
                         key: formKey,
                         child: Column(
@@ -113,37 +118,14 @@ class _signUpState extends State<signUp> {
                               padding: EdgeInsets.fromLTRB(60, 0, 60, 0),
                               child: TextFormField(
                                   validator: (val) {
-                                    if (val!.isEmpty || val.length < 4) {
-                                      text =
-                                          "UserName must be atleast of 4 char";
-                                      showAlertDialog(context);
-                                      text =
-                                          "";
-                                      return "";
-                                    } else {
-                                      return null;
-                                    }
-                                  },
-                                  controller: userNameTextEditing,
-                                  style: simpleTextStyle(),
-                                  decoration: Tex("User Name")),
-                            ),
-                            SizedBox(
-                              height: 30,
-                            ),
-                            Container(
-                              padding: EdgeInsets.fromLTRB(60, 0, 60, 0),
-                              child: TextFormField(
-                                  validator: (val) {
                                     if (RegExp(
-                                            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+                                            r"^[A-Za-z0-9._%+-]+@hyderabad.bits-pilani.ac.in$")
                                         .hasMatch(val!)) {
                                       return null;
                                     } else {
-                                      text = "Use a valid email pattern";
+                                      text = "Use BITS Hyderabad email to register.";
                                       showAlertDialog(context);
-                                      text =
-                                          "";
+                                      text = "";
                                       return "";
                                     }
                                   },
@@ -160,10 +142,9 @@ class _signUpState extends State<signUp> {
                                   obscureText: true,
                                   validator: (val) {
                                     if (val!.isEmpty || val.length < 6) {
-                                      text = "Password has to be 6 char";
+                                      text = "Password has to be 6 chars long";
                                       showAlertDialog(context);
-                                      text =
-                                          "";
+                                      text = "";
                                       return "";
                                     } else {
                                       return null;
@@ -180,33 +161,30 @@ class _signUpState extends State<signUp> {
                         ),
                       ),
                       SizedBox(
-                        height: 100,
+                        height: 40,
                       ),
                       Container(
-                          alignment: Alignment.center,
-                          width: MediaQuery.of(context).size.width,
-                          padding: EdgeInsets.symmetric(vertical: 20),
-                          decoration: BoxDecoration(
-                            borderRadius:BorderRadius.circular(25),
-                            color: Colors.green,
-                          ),
-                          child: GestureDetector(
-                            onTap: () {
-                              signMeUP();
-                            },
-                            child: Container(
-                              child: Text(
-                                "Sign Up",
-                                style: TextStyle(fontSize: 20,color: Colors.white),
-                              ),
+
+
+                          child: ButtonTheme(
+                            shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20)),
+                            minWidth: 300.0,
+                            height: 50.0,
+                            child: RaisedButton(
+
+                              color: Colors.grey,
+
+                              child:Text("Sign Up",style:TextStyle(color: Colors.white)),
+                              onPressed: (){
+                                signMeUP();
+
+                              },
                             ),
                           )),
                       SizedBox(
                         height: 20,
                       ),
-
-
-
                     ],
                   ),
                 ),
@@ -221,7 +199,6 @@ showAlertDialog(BuildContext context) {
     //title: Text(""),
     content: Text("$text"),
     actions: [],
-
   );
 
   showDialog(

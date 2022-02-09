@@ -1,6 +1,7 @@
 import 'dart:io';
+import 'package:alumni/helper/Helperfunction.dart';
+import 'package:alumni/helper/constants.dart';
 import 'package:alumni/views/SearchOrAddItems.dart';
-import 'package:alumni/views/signIn.dart';
 import 'package:alumni/widget/widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -8,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 
 class Add extends StatelessWidget {
@@ -31,7 +32,7 @@ class Add extends StatelessWidget {
 bool isLoading = false;
 TextEditingController NameTextEditing = new TextEditingController();
 TextEditingController PriceTextEditing = new TextEditingController();
-
+late String email;
 
 class MyStatefulWidget extends StatefulWidget {
   const MyStatefulWidget({Key? key}) : super(key: key);
@@ -41,21 +42,23 @@ class MyStatefulWidget extends StatefulWidget {
 }
 
 class _MyStatefulWidgetState extends State<MyStatefulWidget> {
+
   String dropdownValue = 'CSE';
   String dropdownValue2 = 'I';
   int _index = 0;
   String ImageUrl = "test";
   late double price=0;
   late String formattedDate;
-  late String email;
-  void initial() async {
-
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    setState(() {
-      email = prefs.getString('USEREMAILKEY');
-    });
+  initState(){
+    getUserInfo();
+    email = Constants.myName;
+    print(email);
   }
+  getUserInfo() async {
+    Constants.myName = await HelperFunction.getUserNameSharedPreference();
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return isLoading
@@ -91,8 +94,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                   _index += 1;
                 });
               }
-              else if(_index==4){
-
+              else if(_index==4 && ImageUrl!="test"){
+                if(PriceTextEditing.text == '0'){
+                  PriceTextEditing.text="Negotiable";}
                 FirebaseFirestore.instance
                     .collection('URL_Br_Year_Name_Price_Email')
                     .add({'Branch': dropdownValue,
@@ -108,6 +112,9 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                     MaterialPageRoute(builder: (BuildContext context) => SearchAdd()));
 
 
+              }
+              else if(_index==4 && ImageUrl =="test"){
+                showAlertDialog(context, "Please add an image. ");
               }
               }
             ,
@@ -141,7 +148,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                               : RaisedButton(
                                   onPressed: () {
                                     setState(() {
-                                      print("hello" + ImageUrl);
+
                                       ImageUrl = "test";
                                     });
                                     ;
@@ -150,7 +157,7 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                                 ),
                           Text(
                             'Loading may take some time.',
-                            style: TextStyle(color: Colors.green[800]),
+                            style: TextStyle(color: Colors.blue[900],fontSize: 12),
                           )
                         ],
                       ),
@@ -158,15 +165,27 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               ),
               Step(
                 title: Text('Set Price'),
-                content: Container(
-                  child: new TextField(
-                    controller: PriceTextEditing,
-                    decoration: new InputDecoration(labelText: "Enter Price"),
-                    keyboardType: TextInputType.number,
-                    inputFormatters: <TextInputFormatter>[
-                      FilteringTextInputFormatter.digitsOnly
-                    ], // Only numbers can be entered
-                  ),
+                content: Column(
+                  children: [
+                    Container(
+                      child: new TextField(
+                        controller: PriceTextEditing,
+                        decoration: new InputDecoration(labelText: "Enter Price"),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          FilteringTextInputFormatter.digitsOnly
+                        ], // Only numbers can be entered
+                      ),
+                    ),
+                    SizedBox(height: 25,),
+                    Center(
+                      child: Text(
+                        'Leave blank if you want price to be negotiable. ',
+                        style: TextStyle(color: Colors.blue[900],fontSize: 12),
+                      ),
+                    )
+
+                  ],
                 ),
               ),
               Step(
@@ -235,12 +254,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               Step(
                 title: Text('Specify Name of the book'),
                 content: TextField(
+                    maxLength: 100,
                     controller: NameTextEditing,
                     style: simpleTextStyle(), decoration: Tex("")),
               ),
               Step(
                 title: Text('Confirm'),
-                content: Text("You are all set to go." , style: TextStyle(color:Colors.green[800]),),
+                content: Text("You are all set to go." , style: TextStyle(color:Colors.blue[900],fontWeight: FontWeight.bold),),
               ),
 
             ],
@@ -275,19 +295,41 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
 
         var snap = await storage.ref().child(formattedDate).putFile(file);
         var downloadedURL = await snap.ref.getDownloadURL();
+
         setState(() {
+
           ImageUrl = downloadedURL;
           isLoading = false;
         });
       } else {
-        setState() {
+
+        setState(() {
+
           isLoading = false;
-        }
+        });
+
       }
     } else {
-      setState() {
+
+      setState(() {
+
         isLoading = false;
-      }
+      });
+
     }
+  }
+  showAlertDialog(BuildContext context,String text) {
+    AlertDialog alert = AlertDialog(
+      //title: Text(""),
+      content: Text(text),
+      actions: [],
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }
